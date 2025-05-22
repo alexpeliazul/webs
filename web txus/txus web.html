@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Txus Parras - Artista Visual</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎨%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Define CSS variables for theme */
+        :root {
+            --bg-color-light: #f0f0f0;
+            --text-color-light: #333;
+            --accent-color-light: #ff6347; /* Tomato */
+            --card-bg-light: #ffffff;
+            --border-color-light: #e0e0e0;
+        }
+
+        .dark-mode {
+            --bg-color-dark: #1a1a2e; /* Dark blue/purple */
+            --text-color-dark: #e0e0e0;
+            --accent-color-dark: #00bcd4; /* Cyan */
+            --card-bg-dark: #2c2c4a;
+            --border-color-dark: #4a4a6e;
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .dark-mode body {
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+        }
+
+        /* Custom styles for psychedelic font */
+        .font-psychedelic {
+            font-family: 'Permanent Marker', cursive; /* Example psychedelic font */
+        }
+
+        /* Three.js canvas styling */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Send to background */
+            opacity: 0.7; /* Subtle background */
+            transition: opacity 0.5s ease;
+        }
+
+        /* Section entry animations */
+        .section-hidden {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            filter: blur(10px);
+            transition: opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out;
+        }
+
+        .section-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0);
+        }
+
+        /* Button animations */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: -1;
+        }
+
+        .btn-animated:hover::before {
+            left: 100%;
+        }
+
+        /* Glitch effect for menu icon */
+        .glitch-menu {
+            position: relative;
+        }
+        .glitch-menu::before,
+        .glitch-menu::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+        .glitch-menu::before {
+            left: -2px;
+            text-shadow: 1px 0 0 red;
+        }
+        .glitch-menu::after {
+            left: 2px;
+            text-shadow: -1px 0 0 blue;
+        }
+        .glitch-menu:hover::before {
+            animation: glitch-anim-1 0.3s infinite alternate-reverse;
+        }
+        .glitch-menu:hover::after {
+            animation: glitch-anim-2 0.3s infinite alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip: rect(30px, 9999px, 25px, 0); }
+            10% { clip: rect(60px, 9999px, 55px, 0); }
+            20% { clip: rect(10px, 9999px, 5px, 0); }
+            30% { clip: rect(80px, 9999px, 75px, 0); }
+            40% { clip: rect(40px, 9999px, 35px, 0); }
+            50% { clip: rect(90px, 9999px, 85px, 0); }
+            60% { clip: rect(20px, 9999px, 15px, 0); }
+            70% { clip: rect(70px, 9999px, 65px, 0); }
+            80% { clip: rect(50px, 9999px, 45px, 0); }
+            90% { clip: rect(0px, 9999px, 95px, 0); }
+            100% { clip: rect(100px, 9999px, 95px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(20px, 9999px, 15px, 0); }
+            10% { clip: rect(50px, 9999px, 45px, 0); }
+            20% { clip: rect(80px, 9999px, 75px, 0); }
+            30% { clip: rect(10px, 9999px, 5px, 0); }
+            40% { clip: rect(70px, 9999px, 65px, 0); }
+            50% { clip: rect(40px, 9999px, 35px, 0); }
+            60% { clip: rect(90px, 9999px, 85px, 0); }
+            70% { clip: rect(30px, 9999px, 25px, 0); }
+            80% { clip: rect(60px, 9999px, 55px, 0); }
+            90% { clip: rect(0px, 9999px, 95px, 0); }
+            100% { clip: rect(100px, 9999px, 95px, 0); }
+        }
+
+        /* Card hover distortion for courses */
+        .card-distort:hover {
+            transform: scale(1.03) rotate(1deg);
+            filter: hue-rotate(10deg) saturate(1.2);
+            transition: all 0.3s ease-in-out;
+        }
+
+        /* Form input spray/stencil effect */
+        .input-spray:focus {
+            outline: none;
+            border-color: var(--accent-color-light);
+            box-shadow: 0 0 0 3px rgba(255, 99, 71, 0.3); /* Simulates spray */
+            transition: all 0.2s ease-in-out;
+        }
+        .dark-mode .input-spray:focus {
+            border-color: var(--accent-color-dark);
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.3);
+        }
+
+        /* Neon/Doodle effect for testimonials */
+        .neon-text {
+            color: #fff;
+            text-shadow:
+                0 0 7px #fff,
+                0 0 10px #fff,
+                0 0 21px #fff,
+                0 0 42px #0fa,
+                0 0 82px #0fa,
+                0 0 92px #0fa,
+                0 0 102px #0fa,
+                0 0 151px #0fa;
+        }
+        .doodle-border {
+            border: 2px dashed var(--accent-color-light);
+            border-radius: 10px;
+            padding: 1rem;
+            position: relative;
+        }
+        .dark-mode .doodle-border {
+            border-color: var(--accent-color-dark);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+            backdrop-filter: blur(5px); /* Blurred background */
+        }
+
+        .modal-content {
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 900px;
+            position: relative;
+            background-color: var(--card-bg-light);
+            color: var(--text-color-light);
+            border: 1px solid var(--border-color-light);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: fadeInZoom 0.3s ease-out;
+        }
+        .dark-mode .modal-content {
+            background-color: var(--card-bg-dark);
+            color: var(--text-color-dark);
+            border-color: var(--border-color-dark);
+        }
+
+        @keyframes fadeInZoom {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-color-light);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .dark-mode .close-button:hover,
+        .dark-mode .close-button:focus {
+            color: var(--accent-color-dark);
+        }
+
+        /* Parallax effect for sections */
+        .parallax-section {
+            position: relative;
+            background-attachment: fixed; /* This is key for parallax */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color-light);
+            border-radius: 10px;
+        }
+        .dark-mode ::-webkit-scrollbar-track {
+            background: var(--bg-color-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color-light);
+            border-radius: 10px;
+        }
+        .dark-mode ::-webkit-scrollbar-thumb {
+            background: var(--accent-color-dark);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Mobile menu specific styles */
+        #mobile-menu {
+            transition: transform 0.3s ease-out;
+            transform: translateX(100%); /* Hidden by default */
+        }
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 transition-colors duration-500">
+    <canvas id="three-canvas"></canvas>
+
+    <header class="fixed top-0 left-0 w-full bg-white bg-opacity-80 backdrop-blur-sm shadow-lg z-50 p-4 flex justify-between items-center rounded-b-lg transition-colors duration-500 dark:bg-gray-900 dark:bg-opacity-80 dark:text-gray-200">
+        <a href="#" class="text-2xl font-bold font-psychedelic text-red-600 dark:text-cyan-400">Txus Parras</a>
+        <nav class="hidden md:flex space-x-6">
+            <a href="#home" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Inicio</a>
+            <a href="#about" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Biografía</a>
+            <a href="#work" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Obra</a>
+            <a href="#exhibitions" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Exposiciones</a>
+            <a href="#courses" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Cursos</a>
+            <a href="#music" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Sonido</a>
+            <a href="#contact" class="text-lg hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400">Contacto</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:inline-block"></i>
+            </button>
+            <button id="menu-button" class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300 glitch-menu" data-text="☰">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="mobile-menu" class="fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl z-50 transform translate-x-full transition-transform duration-300 ease-out p-6 pt-20">
+        <button id="close-menu-button" class="absolute top-4 right-4 text-gray-700 dark:text-gray-300 text-2xl hover:text-red-600 dark:hover:text-cyan-400 transition-colors duration-300">
+            <i class="fas fa-times"></i>
+        </button>
+        <nav class="flex flex-col space-y-4">
+            <a href="#home" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Inicio</a>
+            <a href="#about" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Biografía</a>
+            <a href="#work" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Obra</a>
+            <a href="#exhibitions" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Exposiciones</a>
+            <a href="#courses" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Cursos</a>
+            <a href="#music" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Sonido</a>
+            <a href="#contact" class="text-xl hover:text-red-600 transition-colors duration-300 dark:hover:text-cyan-400" onclick="closeMobileMenu()">Contacto</a>
+        </nav>
+    </div>
+
+    <main class="relative z-10 pt-20">
+        <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center p-8 section-hidden">
+            <div class="relative w-full max-w-4xl mx-auto mb-8 rounded-xl overflow-hidden shadow-2xl">
+                <img src="https://placehold.co/1200x600/6A0DAD/FFFFFF?text=Arte+de+Txus+Parras" alt="" class="w-full h-auto object-cover rounded-xl border-4 border-red-600 dark:border-cyan-400">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70 rounded-xl"></div>
+                <h1 class="absolute bottom-8 left-1/2 -translate-x-1/2 text-5xl md:text-7xl font-bold text-white font-psychedelic drop-shadow-lg leading-tight">
+                    "El arte es el eco de la calle, el grito del alma."
+                </h1>
+            </div>
+            <a href="#about" class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                Explora su mundo <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </section>
+
+        <section id="about" class="min-h-screen bg-white dark:bg-gray-800 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Biografía: El Viaje de Txus</h2>
+
+            <div class="relative max-w-5xl mx-auto">
+                <div class="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-300 dark:bg-gray-600 rounded-full hidden md:block"></div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">Madrid: Raíces Urbanas</h3>
+                        <p class="text-lg leading-relaxed mb-4">Nacido en el corazón de Madrid, Txus Parras absorbió la energía vibrante de sus calles. Sus primeros trazos se empaparon del grafiti, el stencil y la cultura underground, forjando una visión cruda y auténtica del arte.</p>
+                        <img src="https://placehold.co/400x300/FFD700/000000?text=Txus+joven+Madrid" alt="Txus joven en Madrid" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-yellow-500 transform rotate-2 md:rotate-0">
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -ml-8">
+                        <span class="text-white text-xl font-bold">'90s</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <p class="text-lg leading-relaxed mb-4">"Madrid me enseñó a ver el arte en cada esquina, en cada muro, en cada historia no contada."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> Un rebelde con causa. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <p class="text-lg leading-relaxed mb-4">"El silencio de Suiza fue mi lienzo para la introspección, donde el caos se encontró con la calma."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> La precisión de la locura. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -mr-8">
+                        <span class="text-white text-xl font-bold">2000s</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">Suiza: La Precisión del Caos</h3>
+                        <p class="text-lg leading-relaxed mb-4">La etapa suiza de Txus marcó un giro hacia la experimentación formal. Aquí, su arte adquirió una precisión casi matemática, fusionando la espontaneidad urbana con la meticulosidad del arte óptico y el dadaísmo.</p>
+                        <img src="https://placehold.co/400x300/8A2BE2/FFFFFF?text=Txus+en+Suiza" alt="Txus en Suiza" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-purple-600 transform -rotate-2 md:rotate-0">
+                    </div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">Berlín: La Fusión Maestra</h3>
+                        <p class="text-lg leading-relaxed mb-4">En Berlín, Txus Parras encontró el crisol perfecto para sus influencias. La ciudad, un epicentro de vanguardia y contracultura, le permitió integrar el arte indio antiguo, el misticismo psicodélico y la energía callejera en una obra cohesiva y explosiva.</p>
+                        <img src="https://placehold.co/400x300/00CED1/000000?text=Txus+en+Berlín" alt="Txus en Berlín" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-teal-400 transform rotate-3 md:rotate-0">
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -ml-8">
+                        <span class="text-white text-xl font-bold">Hoy</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <p class="text-lg leading-relaxed mb-4">"Berlín es el lienzo donde la historia y la subversión se abrazan, y yo soy parte de ese abrazo."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> Un universo en expansión. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="work" class="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Obra: El Caos Organizado</h2>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button class="filter-btn bg-red-600 dark:bg-cyan-600 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 active" data-category="all">Todos</button>
+                <button class="filter-btn bg-red-500 dark:bg-cyan-500 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300" data-category="murales">Murales</button>
+                <button class="filter-btn bg-red-500 dark:bg-cyan-500 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300" data-category="digital">Arte Digital</button>
+                <button class="filter-btn bg-red-500 dark:bg-cyan-500 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300" data-category="textil">Textil Intervenido</button>
+                <button class="filter-btn bg-red-500 dark:bg-cyan-500 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300" data-category="colectivos">Proyectos Colectivos</button>
+            </div>
+
+            <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="gallery-item category-murales category-colectivos bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/FF00FF/FFFFFF?text=Mural+Urbano+1', 'Mural Urbano: El Grito del Color', 'Una explosión de colores y formas que transforma el muro en un portal a otra dimensión. Inspirado en el street art de Berlín y los mandalas indios, esta obra busca despertar la conciencia colectiva y la rebelión pacífica.')">
+                    <img src="https://placehold.co/400x300/FF00FF/FFFFFF?text=Mural+Urbano+1" alt="Mural Urbano 1" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-purple-600 dark:text-pink-400">El Grito del Color</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Murales | Proyectos Colectivos</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-digital bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/00FFFF/000000?text=Arte+Digital+Visiones', 'Arte Digital: Visiones Caleidoscópicas', 'Un viaje psicodélico a través de patrones infinitos y geometrías sagradas. Cada pixel vibra con la energía del cosmos, invitando a la meditación y al desorden creativo, un reflejo de la mente en expansión.')">
+                    <img src="https://placehold.co/400x300/00FFFF/000000?text=Arte+Digital+Visiones" alt="Arte Digital Visiones" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-teal-600 dark:text-lime-400">Visiones Caleidoscópicas</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Arte Digital</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-textil bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/FFA500/000000?text=Textil+Intervenido+Chakra', 'Textil Intervenido: Chakra Abierto', 'Textiles que cobran vida, transformando la tela en un lienzo sagrado. Influencias tribales y símbolos de protección se entrelazan en esta pieza única que se puede vestir o colgar, una armadura para el espíritu.')">
+                    <img src="https://placehold.co/400x300/FFA500/000000?text=Textil+Intervenido+Chakra" alt="Textil Intervenido Chakra" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-orange-600 dark:text-yellow-400">Chakra Abierto</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Textil Intervenido</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-murales bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/800080/FFFFFF?text=Mural+Abstracto+Dada', 'Mural Abstracto: Ruido Dada', 'Un homenaje al Dadaísmo, donde el absurdo y la crítica social se manifiestan en formas abstractas y tipografías caóticas. Un muro que grita contra el sistema con un lenguaje propio, una sinfonía de la anarquía.')">
+                    <img src="https://placehold.co/400x300/800080/FFFFFF?text=Mural+Abstracto+Dada" alt="Mural Abstracto Dada" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-purple-700 dark:text-fuchsia-400">Ruido Dada</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Murales</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-digital bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/FF4500/FFFFFF?text=Digital+Tribal+Fusion', 'Arte Digital: Fusión Tribal', 'Una síntesis de símbolos tribales antiguos y gráficos digitales futuristas. Esta obra explora la conexión entre lo ancestral y lo contemporáneo, la raíz y la evolución, un puente entre mundos.')">
+                    <img src="https://placehold.co/400x300/FF4500/FFFFFF?text=Digital+Tribal+Fusion" alt="Digital Tribal Fusion" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-orange-700 dark:text-red-400">Fusión Tribal</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Arte Digital</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-colectivos bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/008080/FFFFFF?text=Proyecto+Colectivo+Renace', 'Proyecto Colectivo: Renace la Semilla', 'Parte de una intervención urbana colectiva, donde múltiples artistas se unen para reimaginar un espacio público. La obra es un manifiesto sobre la resiliencia y el florecimiento, un jardín de ideas en la jungla de asfalto.')">
+                    <img src="https://placehold.co/400x300/008080/FFFFFF?text=Proyecto+Colectivo+Renace" alt="Proyecto Colectivo Renace" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-teal-700 dark:text-lime-400">Renace la Semilla</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Proyectos Colectivos</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-digital bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/4682B4/FFFFFF?text=Digital+Sueños+Ancestrales', 'Arte Digital: Sueños Ancestrales', 'Una inmersión en la memoria colectiva, donde los símbolos indios y las formas psicodélicas se entrelazan en un tapiz digital. Esta obra invita a la contemplación de lo profundo y lo olvidado.')">
+                    <img src="https://placehold.co/400x300/4682B4/FFFFFF?text=Digital+Sueños+Ancestrales" alt="Digital Sueños Ancestrales" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-blue-600 dark:text-blue-400">Sueños Ancestrales</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Arte Digital</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-textil bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/8B0000/FFFFFF?text=Textil+Rebelión+Hilo', 'Textil Intervenido: Rebelión del Hilo', 'Un lienzo textil que ha sido deconstruido y reconstruido con técnicas de bordado y pintura. Las texturas desgastadas y los motivos urbanos narran historias de resistencia y transformación en cada puntada.')">
+                    <img src="https://placehold.co/400x300/8B0000/FFFFFF?text=Textil+Rebelión+Hilo" alt="Textil Rebelión Hilo" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-red-700 dark:text-red-500">Rebelión del Hilo</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Textil Intervenido</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item category-murales bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden transform transition-all duration-300 hover:scale-103 hover:shadow-2xl cursor-pointer" onclick="openModal('https://placehold.co/800x600/20B2AA/FFFFFF?text=Mural+Cosmos+Urbano', 'Mural: Cosmos Urbano', 'Un mural de gran formato que fusiona la geometría sagrada con elementos del grafiti. Los colores vibrantes y las líneas dinámicas crean una sensación de movimiento constante, reflejando el pulso de la ciudad y la inmensidad del universo.')">
+                    <img src="https://placehold.co/400x300/20B2AA/FFFFFF?text=Mural+Cosmos+Urbano" alt="Mural Cosmos Urbano" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2 font-psychedelic text-emerald-600 dark:text-teal-400">Cosmos Urbano</h3>
+                        <p class="text-gray-700 dark:text-gray-300">Murales</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="imageModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeModal()">×</span>
+                <img id="modalImage" class="w-full h-auto rounded-lg mb-4" src="" alt="Modal Image">
+                <h3 id="modalTitle" class="text-3xl font-bold font-psychedelic text-red-600 dark:text-cyan-400 mb-2"></h3>
+                <p id="modalDescription" class="text-lg leading-relaxed"></p>
+            </div>
+        </div>
+
+        <section id="exhibitions" class="min-h-screen bg-white dark:bg-gray-800 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Exposiciones: El Arte en el Mundo</h2>
+
+            <div class="relative max-w-5xl mx-auto">
+                <div class="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-300 dark:bg-gray-600 rounded-full hidden md:block"></div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">2018: "Caos Ordenado" - Berlín</h3>
+                        <p class="text-lg leading-relaxed mb-4">Su primera exposición individual en la vibrante escena artística de Berlín. Una colección de murales y arte digital que exploran la dualidad entre el orden y el caos en la sociedad contemporánea.</p>
+                        <img src="https://placehold.co/400x300/FF69B4/000000?text=Exposición+Berlín" alt="Exposición Berlín" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-pink-500 transform rotate-2 md:rotate-0">
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -ml-8">
+                        <span class="text-white text-xl font-bold">2018</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <p class="text-lg leading-relaxed mb-4">"Cada exposición es un manifiesto, una oportunidad para dialogar con el espacio y el espectador."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> Un diálogo visual. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <p class="text-lg leading-relaxed mb-4">"El arte textil es una forma de llevar el espíritu a la piel, de tejer historias que se sienten."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> Tejidos de conciencia. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -mr-8">
+                        <span class="text-white text-xl font-bold">2020</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">2020: "Texturas del Alma" - Zúrich</h3>
+                        <p class="text-lg leading-relaxed mb-4">Una exposición dedicada a su innovador trabajo en textil intervenido. Combinando técnicas ancestrales con motivos urbanos, Txus exploró la conexión entre el cuerpo, el arte y la espiritualidad.</p>
+                        <img src="https://placehold.co/400x300/DAA520/000000?text=Exposición+Zúrich" alt="Exposición Zúrich" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-goldenrod transform -rotate-2 md:rotate-0">
+                    </div>
+                </div>
+
+                <div class="mb-16 flex flex-col md:flex-row items-start md:items-center justify-between md:odd:flex-row-reverse">
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-right md:text-left">
+                        <h3 class="text-3xl font-bold mb-4 text-red-600 dark:text-cyan-400">2023: "Ecos de la Calle" - Madrid</h3>
+                        <p class="text-lg leading-relaxed mb-4">Un regreso a sus raíces madrileñas con una exposición que celebra el arte urbano como forma de expresión y resistencia. Incluyó obras interactivas y colaboraciones con artistas locales.</p>
+                        <img src="https://placehold.co/400x300/40E0D0/000000?text=Exposición+Madrid" alt="Exposición Madrid" class="w-full h-auto object-cover rounded-lg shadow-md border-4 border-turquoise transform rotate-3 md:rotate-0">
+                    </div>
+                    <div class="hidden md:flex items-center justify-center w-16 h-16 bg-red-600 dark:bg-cyan-400 rounded-full shadow-lg flex-shrink-0 -ml-8">
+                        <span class="text-white text-xl font-bold">2023</span>
+                    </div>
+                    <div class="w-full md:w-1/2 p-4 md:p-8 text-left md:text-right">
+                        <p class="text-lg leading-relaxed mb-4">"Volver a Madrid es recordar que el arte más puro nace de la calle, del pulso de la gente."</p>
+                        <div class="doodle-border inline-block neon-text text-xl">
+                            <i class="fas fa-quote-left mr-2"></i> La ciudad que inspira. <i class="fas fa-quote-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="courses" class="min-h-screen bg-white dark:bg-gray-800 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Cursos: Tacheles Vive</h2>
+            <p class="text-center text-xl max-w-3xl mx-auto mb-12 leading-relaxed">"Tacheles vive" no es solo un lema, es la filosofía de Txus Parras al compartir su proceso creativo. Sumérgete en talleres que fusionan la teoría con la acción, donde el arte es una experiencia de transformación.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card-distort bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-lg border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <h3 class="text-3xl font-bold mb-4 font-psychedelic text-red-600 dark:text-cyan-400">Graffiti y Stencil: La Calle es tu Lienzo</h3>
+                    <p class="text-lg mb-4 text-gray-700 dark:text-gray-300">Aprende las técnicas esenciales del arte urbano. Desde la creación de plantillas hasta el manejo del spray y la composición mural.</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 mb-6">
+                        <li>Presencial y Online</li>
+                        <li>Nivel: Principiante a Intermedio</li>
+                        <li>Duración: 4 semanas</li>
+                    </ul>
+                    <button class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-6 py-3 rounded-full text-lg font-bold shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                        Inscríbete Ahora <i class="fas fa-paint-roller ml-2"></i>
+                    </button>
+                </div>
+
+                <div class="card-distort bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-lg border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <h3 class="text-3xl font-bold mb-4 font-psychedelic text-red-600 dark:text-cyan-400">Psicodelia Digital: Mandalas en Movimiento</h3>
+                    <p class="text-lg mb-4 text-gray-700 dark:text-gray-300">Explora la creación de arte digital psicodélico, fusionando patrones geométricos con software de diseño gráfico.</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 mb-6">
+                        <li>Online (Vía Zoom y plataforma)</li>
+                        <li>Nivel: Intermedio</li>
+                        <li>Duración: 6 semanas</li>
+                    </ul>
+                    <button class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-6 py-3 rounded-full text-lg font-bold shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                        ¡Libera tu Mente! <i class="fas fa-brush ml-2"></i>
+                    </button>
+                </div>
+
+                <div class="card-distort bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-lg border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <h3 class="text-3xl font-bold mb-4 font-psychedelic text-red-600 dark:text-cyan-400">Dadaísmo y Collage: Rompe las Reglas</h3>
+                    <p class="text-lg mb-4 text-gray-700 dark:text-gray-300">Un taller para desafiar las convenciones artísticas a través del collage, la asamblea y la provocación.</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 mb-6">
+                        <li>Presencial (Estudio Txus Parras, Berlín)</li>
+                        <li>Nivel: Abierto a todos</li>
+                        <li>Duración: Intensivo de fin de semana</li>
+                    </ul>
+                    <button class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-6 py-3 rounded-full text-lg font-bold shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                        ¡Desafía lo Establecido! <i class="fas fa-cut ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="music" class="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Sonido: Proyecto Subnoise</h2>
+            <p class="text-center text-xl max-w-3xl mx-auto mb-12 leading-relaxed">Sumérgete en el universo sonoro de Txus Parras, donde la música es una extensión de su arte visual. Subnoise es un proyecto de experimentación sonora que fusiona géneros y crea paisajes auditivos hipnóticos.</p>
+
+            <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 mb-12 border border-red-400 dark:border-cyan-700">
+                <h3 class="text-3xl font-bold mb-6 font-psychedelic text-red-600 dark:text-cyan-400">Reproductor Subnoise</h3>
+                <div class="relative w-full h-24 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
+                    <div id="audio-visualizer" class="absolute inset-0 flex items-end justify-between p-4 opacity-70">
+                        <div class="w-2 h-4 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0s;"></div>
+                        <div class="w-2 h-8 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.1s;"></div>
+                        <div class="w-2 h-6 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.2s;"></div>
+                        <div class="w-2 h-10 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.3s;"></div>
+                        <div class="w-2 h-5 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.4s;"></div>
+                        <div class="w-2 h-7 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.5s;"></div>
+                        <div class="w-2 h-9 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.6s;"></div>
+                        <div class="w-2 h-3 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.7s;"></div>
+                        <div class="w-2 h-8 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.8s;"></div>
+                        <div class="w-2 h-6 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 0.9s;"></div>
+                        <div class="w-2 h-10 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 1s;"></div>
+                        <div class="w-2 h-5 bg-red-500 dark:bg-cyan-500 rounded-sm animate-wave" style="animation-delay: 1.1s;"></div>
+                    </div>
+                    <p class="text-gray-500 dark:text-gray-400 text-lg font-bold z-10">Visualizador de Ondas Psico-Sonoras</p>
+                </div>
+                <div class="flex justify-center space-x-6 mt-6">
+                    <a href="https://bandcamp.com/" target="_blank" rel="noopener noreferrer" class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                        Bandcamp <i class="fab fa-bandcamp ml-2"></i>
+                    </a>
+                    <a href="https://spotify.com/" target="_blank" rel="noopener noreferrer" class="btn-animated bg-green-600 dark:bg-emerald-600 text-white px-6 py-3 rounded-full text-lg shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                        Spotify <i class="fab fa-spotify ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <h3 class="text-3xl font-bold text-center mb-8 font-psychedelic text-red-600 dark:text-cyan-400">Mini Galería Sonora Visual</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <img src="https://placehold.co/300x200/4B0082/FFFFFF?text=Abstracción+Sónica+1" alt="Abstracción Sónica 1" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2 font-psychedelic text-purple-600 dark:text-pink-400">El Eco del Vacío</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Una pieza experimental que evoca paisajes sonoros industriales y pulsaciones cósmicas.</p>
+                    <button class="bg-red-500 dark:bg-cyan-500 text-white px-4 py-2 rounded-full hover:bg-red-600 dark:hover:bg-cyan-600 transition-colors duration-300"><i class="fas fa-play mr-2"></i> Escuchar Sample</button>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <img src="https://placehold.co/300x200/2F4F4F/FFFFFF?text=Ritmos+Tribales+Digitales" alt="Ritmos Tribales Digitales" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2 font-psychedelic text-teal-700 dark:text-lime-400">Ritual Electrónico</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Fusión de percusiones tribales con sintetizadores modulares, creando una atmósfera de trance.</p>
+                    <button class="bg-red-500 dark:bg-cyan-500 text-white px-4 py-2 rounded-full hover:bg-red-600 dark:hover:bg-cyan-600 transition-colors duration-300"><i class="fas fa-play mr-2"></i> Escuchar Sample</button>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-red-300 dark:border-cyan-700 hover:border-red-600 dark:hover:border-cyan-400 transition-colors duration-300">
+                    <img src="https://placehold.co/300x200/DDA0DD/000000?text=Melodías+Dadaístas" alt="Melodías Dadaístas" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h4 class="text-xl font-bold mb-2 font-psychedelic text-pink-600 dark:text-fuchsia-400">Fragmentos del Caos</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Melodías disonantes y samples de voz intervenidos, una oda sonora al dadaísmo.</p>
+                    <button class="bg-red-500 dark:bg-cyan-500 text-white px-4 py-2 rounded-full hover:bg-red-600 dark:hover:bg-cyan-600 transition-colors duration-300"><i class="fas fa-play mr-2"></i> Escuchar Sample</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="min-h-screen bg-white dark:bg-gray-800 p-8 md:p-16 section-hidden rounded-xl shadow-lg m-4 md:m-8">
+            <h2 class="text-5xl font-bold text-center mb-12 font-psychedelic text-red-600 dark:text-cyan-400">Contacto: Colabora con el Caos</h2>
+            <p class="text-center text-xl max-w-3xl mx-auto mb-12 leading-relaxed">¿Tienes una idea, un proyecto o simplemente quieres conectar con Txus Parras? Utiliza este canal directo para iniciar una conversación. El arte es colaboración, y la colaboración es el alma de la revolución creativa.</p>
+
+            <form class="max-w-2xl mx-auto bg-gray-50 dark:bg-gray-700 p-8 rounded-xl shadow-xl border border-red-300 dark:border-cyan-700">
+                <div class="mb-6">
+                    <label for="name" class="block text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Tu Nombre/Colectivo</label>
+                    <input type="text" id="name" name="name" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 input-spray" placeholder="¡Elige tu identidad!">
+                </div>
+                <div class="mb-6">
+                    <label for="email" class="block text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Tu Email de Contacto</label>
+                    <input type="email" id="email" name="email" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 input-spray" placeholder="¿Dónde podemos conectar?">
+                </div>
+                <div class="mb-6">
+                    <label for="subject" class="block text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Asunto de la Provocación</label>
+                    <input type="text" id="subject" name="subject" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 input-spray" placeholder="¿Qué se trae entre manos?">
+                </div>
+                <div class="mb-6">
+                    <label for="message" class="block text-xl font-bold mb-2 text-gray-800 dark:text-gray-200">Tu Manifiesto o Idea</label>
+                    <textarea id="message" name="message" rows="6" class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 input-spray" placeholder="¡Desata tu creatividad aquí!"></textarea>
+                </div>
+                <button type="submit" class="btn-animated bg-red-600 dark:bg-cyan-600 text-white px-8 py-4 rounded-full text-xl font-bold w-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out">
+                    Enviar Manifiesto <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </form>
+
+            <div class="mt-12 text-center">
+                <h3 class="text-3xl font-bold mb-6 font-psychedelic text-red-600 dark:text-cyan-400">Redes Sociales: Sigue el Rastro</h3>
+                <div class="flex justify-center space-x-8">
+                    <a href="https://instagram.com/txusparras" target="_blank" rel="noopener noreferrer" class="text-red-600 dark:text-cyan-400 hover:text-red-800 dark:hover:text-cyan-600 transform hover:scale-125 transition-transform duration-300">
+                        <i class="fab fa-instagram text-5xl"></i>
+                    </a>
+                    <a href="https://twitter.com/txusparras" target="_blank" rel="noopener noreferrer" class="text-red-600 dark:text-cyan-400 hover:text-red-800 dark:hover:text-cyan-600 transform hover:scale-125 transition-transform duration-300">
+                        <i class="fab fa-twitter text-5xl"></i>
+                    </a>
+                    <a href="https://facebook.com/txusparras" target="_blank" rel="noopener noreferrer" class="text-red-600 dark:text-cyan-400 hover:text-red-800 dark:hover:text-cyan-600 transform hover:scale-125 transition-transform duration-300">
+                        <i class="fab fa-facebook text-5xl"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/txusparras" target="_blank" rel="noopener noreferrer" class="text-red-600 dark:text-cyan-400 hover:text-red-800 dark:hover:text-cyan-600 transform hover:scale-125 transition-transform duration-300">
+                        <i class="fab fa-linkedin text-5xl"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 p-8 text-center mt-12 rounded-t-xl dark:bg-gray-950">
+        <p class="text-xl font-psychedelic text-red-400 dark:text-cyan-300 mb-4">"El arte no es lo que ves, sino lo que haces ver a los demás."</p>
+        <div class="text-4xl font-bold font-psychedelic text-white mb-6 animate-pulse">
+            <span class="inline-block text-red-500 dark:text-cyan-400">Txus Parras</span> <span class="text-white text-3xl">®</span>
+        </div>
+        <p class="text-sm mb-2">Diseño y Desarrollo por <span class="font-bold text-red-300 dark:text-cyan-200">Tu Nombre/Equipo Creativo</span></p>
+        <p class="text-xs">© 2025 Txus Parras. Todos los derechos subversivos reservados.</p>
+        <p class="text-xs text-gray-500 mt-4">Un experimento digital que desafía las normas.</p>
+    </footer>
+
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.164.1/three.min.js"></script>
+
+    <script>
+        // Three.js Background Animation
+        let scene, camera, renderer, geometry, material, mesh;
+
+        function initThreeJS() {
+            const canvas = document.getElementById('three-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Optical Art inspired geometry (e.g., a simple grid or a complex pattern)
+            const num = 100;
+            geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(num * num * 3);
+            const colors = new Float32Array(num * num * 3);
+
+            for (let i = 0; i < num; i++) {
+                for (let j = 0; j < num; j++) {
+                    const idx = (i * num + j) * 3;
+                    positions[idx] = (i - num / 2) * 0.1;
+                    positions[idx + 1] = (j - num / 2) * 0.1;
+                    positions[idx + 2] = Math.random() * 5 - 2.5; // Z depth for a bit of 3D
+                    
+                    // Vibrant, psychedelic colors
+                    colors[idx] = Math.random() * 0.5 + 0.5; // Red
+                    colors[idx + 1] = Math.random() * 0.5 + 0.5; // Green
+                    colors[idx + 2] = Math.random() * 0.5 + 0.5; // Blue
+                }
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // Custom Shader Material for optical/glitch effect
+            material = new THREE.ShaderMaterial({
+                vertexShader: `
+                    varying vec3 vColor;
+                    void main() {
+                        vColor = color;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+                    uniform float u_time;
+                    void main() {
+                        vec3 finalColor = vColor;
+                        // Simple glitch/color shift based on time and fragment position
+                        finalColor.r += sin(gl_FragCoord.y * 0.01 + u_time * 0.5) * 0.1;
+                        finalColor.g += cos(gl_FragCoord.x * 0.01 + u_time * 0.5) * 0.1;
+                        gl_FragColor = vec4(finalColor, 1.0);
+                    }
+                `,
+                uniforms: {
+                    u_time: { value: 0.0 }
+                },
+                vertexColors: true,
+                transparent: true,
+                blending: THREE.AdditiveBlending // For vibrant, overlapping colors
+            });
+
+            mesh = new THREE.Points(geometry, material); // Use Points for a scattered, particle-like effect
+            scene.add(mesh);
+
+            camera.position.z = 5;
+        }
+
+        function animateThreeJS() {
+            requestAnimationFrame(animateThreeJS);
+
+            if (mesh) {
+                mesh.rotation.x += 0.0005;
+                mesh.rotation.y += 0.0008;
+                material.uniforms.u_time.value += 0.01;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResizeThreeJS() {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        // Initialize Three.js after the DOM is loaded
+        window.addEventListener('load', () => {
+            initThreeJS();
+            animateThreeJS();
+        });
+        window.addEventListener('resize', onWindowResizeThreeJS);
+
+        // --- General Website JavaScript ---
+
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            body.classList.add('dark-mode');
+        }
+
+        // Section Scroll Animations (Intersection Observer)
+        const sections = document.querySelectorAll('section');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.2 // Trigger when 20% of the section is visible
+        };
+
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.remove('section-hidden');
+                    entry.target.classList.add('section-visible');
+                    // Optional: Unobserve after animation to prevent re-triggering
+                    // observer.unobserve(entry.target);
+                } else {
+                    // Optional: Re-hide sections when they leave viewport
+                    entry.target.classList.remove('section-visible');
+                    entry.target.classList.add('section-hidden');
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            section.classList.add('section-hidden'); // Ensure all sections are hidden initially
+            sectionObserver.observe(section);
+        });
+
+        // Mobile Menu Toggle
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu-button');
+
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+        }
+
+        // Gallery Filtering
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const galleryItems = document.querySelectorAll('.gallery-item');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active', 'bg-red-600', 'dark:bg-cyan-600', 'bg-red-500', 'dark:bg-cyan-500'));
+                // Add active class to the clicked button
+                button.classList.add('active', 'bg-red-600', 'dark:bg-cyan-600');
+
+                const category = button.dataset.category;
+
+                galleryItems.forEach(item => {
+                    if (category === 'all' || item.classList.contains(`category-${category}`)) {
+                        item.style.display = 'block';
+                        item.style.animation = 'fadeInZoom 0.5s ease-out';
+                    } else {
+                        item.style.display = 'none';
+                        item.style.animation = 'none';
+                    }
+                });
+            });
+        });
+
+        // Initialize gallery with "All" selected
+        document.querySelector('.filter-btn[data-category="all"]').click();
+
+        // Image Modal Functionality
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+
+        function openModal(imageSrc, title, description) {
+            modalImage.src = imageSrc;
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+            imageModal.style.display = 'block';
+        }
+
+        function closeModal() {
+            imageModal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                closeModal();
+            }
+        });
+
+        // Parallax Effect (for a simpler version without complex libraries)
+        // This example uses a simple scroll transform for visual effect on body background elements.
+        // For actual background images, `background-attachment: fixed` is usually enough.
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.pageYOffset;
+            // You can apply transformations to other elements here
+            // e.g., document.getElementById('some-element').style.transform = `translateY(${scrollPosition * 0.1}px)`;
+        });
+
+        // Simple Audio Visualizer Animation (CSS based, not actual audio processing)
+        const animateWaveBars = () => {
+            const bars = document.querySelectorAll('#audio-visualizer div');
+            bars.forEach(bar => {
+                const randomHeight = Math.random() * 80 + 20; // 20% to 100% height
+                bar.style.height = `${randomHeight}%`;
+                bar.style.transition = 'height 0.2s ease-out';
+            });
+        };
+        // Simulate audio wave every 200ms
+        setInterval(animateWaveBars, 200);
+
+    </script>
+</body>
+</html>
